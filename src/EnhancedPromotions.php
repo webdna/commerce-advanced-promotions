@@ -159,21 +159,22 @@ class EnhancedPromotions extends Plugin
                 $order = $event->sender;
                 $request = Craft::$app->getRequest();
                     
-                //Craft::dd($request->getParam('couponCodes'));
-                
-                $query = (new \craft\db\Query())
-                    ->where([
-                        'orderId' => $order->id,
-                    ])
-                    ->andWhere([
-                        'not', ['code' => $request->getParam('couponCodes')],
-                    ]);
-                //Craft::dd($query->where);
-                
-                if ($codes = $request->getParam('couponCodes', null)) {
-                    Db::delete('{{%commerce-enhanced-promotions_couponcodes}}', $query->where);
+                if ($couponCodes = $request->getParam('couponCodes')) {
+                    $removeCodes = [];
+                    foreach ($couponCodes as $key => $couponCode) {
+                        if ($remove = $request->getParam("couponCodes.$key.remove", false)) {
+                            $removeCodes[] = $key;
+                        }
+                    }
+                    
+                    if (count($removeCodes)) {
+                        Db::delete('{{%commerce-enhanced-promotions_couponcodes}}', [
+                            'orderId' => $order->id,
+                            'code' => $removeCodes,
+                        ]);
+                    }
                 }
-        
+                
                 if ($order->couponCode) {
                     $discount = Commerce::getInstance()->getDiscounts()->getDiscountByCode($order->couponCode);
                         
@@ -193,7 +194,7 @@ class EnhancedPromotions extends Plugin
             Response::class, 
             Response::EVENT_BEFORE_SEND, 
             function(Event $event) {
-                if ($event->sender->template == 'commerce/promotions/discounts/_edit') {
+                if (($event->sender->template ?? null) == 'commerce/promotions/discounts/_edit') {
                     $event->sender->template = 'commerce-enhanced-promotions/discounts/_edit';
                 }
             }
