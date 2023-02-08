@@ -1,9 +1,9 @@
 <?php
 
-namespace webdna\commerce\advancedpromotions\services;
+namespace webdna\commerce\enhancedpromotions\services;
 
 use Craft;
-use webdna\commerce\advancedpromotions\records\CouponCode;
+use webdna\commerce\enhancedpromotions\records\CouponCode;
 use yii\base\Component;
 
 /**

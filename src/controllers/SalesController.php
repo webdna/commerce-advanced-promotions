@@ -1,6 +1,6 @@
 <?php
 
-namespace webdna\commerce\advancedpromotions\controllers;
+namespace webdna\commerce\enhancedpromotions\controllers;
 
 use Craft;
 use craft\commerce\Plugin as Commerce;
@@ -19,6 +19,6 @@ class SalesController extends CommerceSalesController
     public function actionIndex(): Response
     {
         $sales = Commerce::getInstance()->getSales()->getAllSales();
-        return $this->renderTemplate('commerce-advanced-promotions/sales/index', compact('sales'));
+        return $this->renderTemplate('commerce-enhanced-promotions/sales/index', compact('sales'));
     }
 }

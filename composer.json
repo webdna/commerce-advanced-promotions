@@ -1,14 +1,14 @@
 {
-    "name": "webdna/commerce-advanced-promotions",
-    "description": "Advanced commerce promotions",
+    "name": "webdna/commerce-enhanced-promotions",
+    "description": "Enhanced commerce promotions",
     "type": "craft-plugin",
     "license": "proprietary",
     "support": {
         "email": "info@webdna.co.uk",
-        "issues": "https://github.com/webdna/commerce-advanced-promotions/issues?state=open",
-        "source": "https://github.com/webdna/commerce-advanced-promotions",
-        "docs": "https://github.com/webdna/commerce-advanced-promotions",
-        "rss": "https://github.com/webdna/commerce-advanced-promotions/releases.atom"
+        "issues": "https://github.com/webdna/commerce-enhanced-promotions/issues?state=open",
+        "source": "https://github.com/webdna/commerce-enhanced-promotions",
+        "docs": "https://github.com/webdna/commerce-enhanced-promotions",
+        "rss": "https://github.com/webdna/commerce-enhanced-promotions/releases.atom"
     },
     "require": {
         "php": ">=8.0.2",
@@ -16,15 +16,15 @@
     },
     "autoload": {
         "psr-4": {
-            "webdna\\commerce\\advancedpromotions\\": "src/"
+            "webdna\\commerce\\enhancedpromotions\\": "src/"
         }
     },
     "extra": {
-        "handle": "commerce-advanced-promotions",
-        "name": "Advanced Promotions",
+        "handle": "commerce-enhanced-promotions",
+        "name": "Enhanced Promotions",
         "developer": "webdna",
-        "documentationUrl": "https://github.com/webdna/commerce-advanced-promotions",
-        "class": "webdna\\commerce\\advancedpromotions\\AdvancedPromotions"
+        "documentationUrl": "https://github.com/webdna/commerce-enhanced-promotions",
+        "class": "webdna\\commerce\\enhancedpromotions\\EnhancedPromotions"
     },
     "config": {
         "sort-packages": true,

@@ -1,12 +1,12 @@
 <?php
 
-namespace webdna\commerce\advancedpromotions\adjusters;
+namespace webdna\commerce\enhancedpromotions\adjusters;
 
 use Craft;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\elements\Order;
 use craft\commerce\adjusters\Discount as DiscountAdjuster;
-use webdna\commerce\advancedpromotions\records\CouponCode;
+use webdna\commerce\enhancedpromotions\records\CouponCode;
 
 class Discount extends DiscountAdjuster
 {

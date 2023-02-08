@@ -1,6 +1,6 @@
 <?php
 
-namespace webdna\commerce\advancedpromotions\models;
+namespace webdna\commerce\enhancedpromotions\models;
 
 use Craft;
 use craft\base\Model;

@@ -1,6 +1,6 @@
 <?php
 
-namespace webdna\commerce\advancedpromotions\migrations;
+namespace webdna\commerce\enhancedpromotions\migrations;
 
 use Craft;
 use craft\commerce\db\Table;
@@ -40,7 +40,7 @@ class Install extends Migration
 	
 	public function createTables(): void
 	{
-		$this->createTable('{{%commerce-advanced-promotions_couponcodes}}', [
+		$this->createTable('{{%commerce-enhanced-promotions_couponcodes}}', [
 			//'id' => $this->primaryKey(),
 			'code' => $this->string()->notNull(),
 			'discountId' => $this->integer()->notNull(),
@@ -53,16 +53,16 @@ class Install extends Migration
 	
 	public function createIndexes(): void
 	{
-		$this->createIndex(null, '{{%commerce-advanced-promotions_couponcodes}}', 'code', false);
-		$this->createIndex(null, '{{%commerce-advanced-promotions_couponcodes}}', 'discountId', false);
-		$this->createIndex(null, '{{%commerce-advanced-promotions_couponcodes}}', 'orderId', false);
-		$this->createIndex(null, '{{%commerce-advanced-promotions_couponcodes}}', ['discountId', 'orderId'], true);
+		$this->createIndex(null, '{{%commerce-enhanced-promotions_couponcodes}}', 'code', false);
+		$this->createIndex(null, '{{%commerce-enhanced-promotions_couponcodes}}', 'discountId', false);
+		$this->createIndex(null, '{{%commerce-enhanced-promotions_couponcodes}}', 'orderId', false);
+		$this->createIndex(null, '{{%commerce-enhanced-promotions_couponcodes}}', ['discountId', 'orderId'], true);
 	}
 	
 	public function addForeignKeys(): void
 	{
-		$this->addForeignKey(null, '{{%commerce-advanced-promotions_couponcodes}}', ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');
-		$this->addForeignKey(null, '{{%commerce-advanced-promotions_couponcodes}}', ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
+		$this->addForeignKey(null, '{{%commerce-enhanced-promotions_couponcodes}}', ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');
+		$this->addForeignKey(null, '{{%commerce-enhanced-promotions_couponcodes}}', ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
 	}
 	
 	public function insertDefaultData(): void
@@ -72,11 +72,11 @@ class Install extends Migration
 	
 	public function dropForeignKeys(): void
 	{
-		MigrationHelper::dropAllForeignKeysOnTable('{{%commerce-advanced-promotions_couponcodes}}', $this);
+		MigrationHelper::dropAllForeignKeysOnTable('{{%commerce-enhanced-promotions_couponcodes}}', $this);
 	}
 	
 	public function dropTables(): void
 	{
-		$this->dropTableIfExists('{{%commerce-advanced-promotions_couponcodes}}');
+		$this->dropTableIfExists('{{%commerce-enhanced-promotions_couponcodes}}');
 	}
 }

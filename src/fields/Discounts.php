@@ -1,6 +1,6 @@
 <?php
 
-namespace webdna\commerce\advancedpromotions\fields;
+namespace webdna\commerce\enhancedpromotions\fields;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -17,7 +17,7 @@ class Discounts extends Field
 {
     public static function displayName(): string
     {
-        return Craft::t('advanced-promotions', 'Discounts');
+        return Craft::t('commerce-enhanced-promotions', 'Discounts');
     }
 
     public static function valueType(): string

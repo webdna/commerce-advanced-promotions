@@ -1,6 +1,6 @@
 <?php
 
-namespace webdna\commerce\advancedpromotions;
+namespace webdna\commerce\enhancedpromotions;
 
 use Craft;
 use craft\base\Model;
@@ -22,19 +22,20 @@ use craft\helpers\ElementHelper;
 use craft\helpers\Db;
 use craft\services\Fields;
 use craft\web\UrlManager;
-use webdna\commerce\advancedpromotions\adjusters\Discount as DiscountAdjuster;
-use webdna\commerce\advancedpromotions\behaviors\OrderBehavior;
-use webdna\commerce\advancedpromotions\fields\Discounts as DiscountsAlias;
-use webdna\commerce\advancedpromotions\models\Settings;
-use webdna\commerce\advancedpromotions\services\DiscountTypes;
-use webdna\commerce\advancedpromotions\services\Discounts;
-use webdna\commerce\advancedpromotions\services\Sales;
+use craft\web\Response;
+use webdna\commerce\enhancedpromotions\adjusters\Discount as DiscountAdjuster;
+use webdna\commerce\enhancedpromotions\behaviors\OrderBehavior;
+use webdna\commerce\enhancedpromotions\fields\Discounts as DiscountsAlias;
+use webdna\commerce\enhancedpromotions\models\Settings;
+use webdna\commerce\enhancedpromotions\services\DiscountTypes;
+use webdna\commerce\enhancedpromotions\services\Discounts;
+use webdna\commerce\enhancedpromotions\services\Sales;
 use yii\base\Event;
 
 /**
- * Advanced Promotions plugin
+ * Enhanced Promotions plugin
  *
- * @method static AdvancedPromotions getInstance()
+ * @method static EnhancedPromotions getInstance()
  * @method Settings getSettings()
  * @author webdna <info@webdna.co.uk>
  * @copyright webdna
@@ -43,7 +44,7 @@ use yii\base\Event;
  * @property-read Sales $sales
  * @property-read DiscountTypes $discountTypes
  */
-class AdvancedPromotions extends Plugin
+class EnhancedPromotions extends Plugin
 {
     public string $schemaVersion = '1.0.0';
     public bool $hasCpSettings = false;
@@ -78,7 +79,7 @@ class AdvancedPromotions extends Plugin
 
     protected function settingsHtml(): ?string
     {
-        return Craft::$app->view->renderTemplate('advanced-promotions/_settings.twig', [
+        return Craft::$app->view->renderTemplate('commerce-enhanced-promotions/_settings.twig', [
             'plugin' => $this,
             'settings' => $this->getSettings(),
         ]);
@@ -101,13 +102,13 @@ class AdvancedPromotions extends Plugin
             UrlManager::EVENT_REGISTER_CP_URL_RULES,
             function (RegisterUrlRulesEvent $event) {
                 
-                $event->rules['commerce/promotions/sales'] = 'commerce-advanced-promotions/sales/index';
-                $event->rules['commerce/promotions/sales/new'] = 'commerce-advanced-promotions/sales/edit';
-                $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce-advanced-promotions/sales/edit';
+                $event->rules['commerce/promotions/sales'] = 'commerce-enhanced-promotions/sales/index';
+                $event->rules['commerce/promotions/sales/new'] = 'commerce-enhanced-promotions/sales/edit';
+                $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce-enhanced-promotions/sales/edit';
                 
-                $event->rules['commerce/promotions/discounts'] = 'commerce-advanced-promotions/discounts/index';
-                $event->rules['commerce/promotions/discounts/new'] = 'commerce-advanced-promotions/discounts/edit';
-                $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce-advanced-promotions/discounts/edit';
+                $event->rules['commerce/promotions/discounts'] = 'commerce-enhanced-promotions/discounts/index';
+                $event->rules['commerce/promotions/discounts/new'] = 'commerce-enhanced-promotions/discounts/edit';
+                $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce-enhanced-promotions/discounts/edit';
             }
         );
         
@@ -156,11 +157,27 @@ class AdvancedPromotions extends Plugin
             Order::EVENT_BEFORE_SAVE, 
             function(ModelEvent $event) {
                 $order = $event->sender;
+                $request = Craft::$app->getRequest();
+                    
+                //Craft::dd($request->getParam('couponCodes'));
+                
+                $query = (new \craft\db\Query())
+                    ->where([
+                        'orderId' => $order->id,
+                    ])
+                    ->andWhere([
+                        'not', ['code' => $request->getParam('couponCodes')],
+                    ]);
+                //Craft::dd($query->where);
+                
+                if ($codes = $request->getParam('couponCodes', null)) {
+                    Db::delete('{{%commerce-enhanced-promotions_couponcodes}}', $query->where);
+                }
         
                 if ($order->couponCode) {
                     $discount = Commerce::getInstance()->getDiscounts()->getDiscountByCode($order->couponCode);
                         
-                    Db::upsert('{{%commerce-advanced-promotions_couponcodes}}',
+                    Db::upsert('{{%commerce-enhanced-promotions_couponcodes}}',
                     [
                         'code' => $order->couponCode,
                         'discountId' => $discount->id,
@@ -172,5 +189,14 @@ class AdvancedPromotions extends Plugin
             }
         );
         
+        Event::on(
+            Response::class, 
+            Response::EVENT_BEFORE_SEND, 
+            function(Event $event) {
+                if ($event->sender->template == 'commerce/promotions/discounts/_edit') {
+                    $event->sender->template = 'commerce-enhanced-promotions/discounts/_edit';
+                }
+            }
+        );
     }
 }

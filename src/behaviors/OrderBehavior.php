@@ -1,12 +1,12 @@
 <?php
 
-namespace webdna\commerce\advancedpromotions\behaviors;
+namespace webdna\commerce\enhancedpromotions\behaviors;
 
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin as Commerce;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
-use webdna\commerce\advancedpromotions\records\CouponCode;
+use webdna\commerce\enhancedpromotions\records\CouponCode;
 use RuntimeException;
 use yii\base\Behavior;
 use yii\base\InvalidConfigException;
@@ -38,4 +38,5 @@ class OrderBehavior extends Behavior
 	{
 		return CouponCode::find(['orderId' => $this->owner->id])->select('code')->column();
 	}
+
 }

@@ -1,6 +1,6 @@
-# Advanced Promotions
+# Enhanced Promotions
 
-Advanced commerce promotions
+Enhanced commerce promotions
 
 ## Requirements
 
@@ -12,7 +12,7 @@ You can install this plugin from the Plugin Store or with Composer.
 
 #### From the Plugin Store
 
-Go to the Plugin Store in your project’s Control Panel and search for “Advanced Promotions”. Then press “Install”.
+Go to the Plugin Store in your project’s Control Panel and search for “Enhanced Promotions”. Then press “Install”.
 
 #### With Composer
 
@@ -23,8 +23,8 @@ Open your terminal and run the following commands:
 cd /path/to/my-project.test
 
 # tell Composer to load the plugin
-composer require webdna/commerce-advanced-promotions
+composer require webdna/commerce-enhanced-promotions
 
 # tell Craft to install the plugin
-./craft plugin/install advanced-promotions
+./craft plugin/install commerce-enhanced-promotions
 ```

@@ -1,6 +1,6 @@
 <?php
 
-namespace webdna\commerce\advancedpromotions\services;
+namespace webdna\commerce\enhancedpromotions\services;
 
 use Craft;
 use yii\base\Component;

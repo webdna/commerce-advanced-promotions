@@ -1,6 +1,6 @@
 <?php
 
-namespace webdna\commerce\advancedpromotions\records;
+namespace webdna\commerce\enhancedpromotions\records;
 
 use Craft;
 use craft\db\ActiveRecord;
@@ -12,6 +12,6 @@ class Sale extends ActiveRecord
 {
     public static function tableName()
     {
-        return '{{%commerce-advanced-promotions_sales}}';
+        return '{{%commerce-enhanced-promotions_sales}}';
     }
 }
