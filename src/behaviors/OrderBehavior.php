@@ -36,7 +36,7 @@ class OrderBehavior extends Behavior
 	 */
 	public function getCouponCodes(): array
 	{
-		return CouponCode::find(['orderId' => $this->owner->id])->select('code')->column();
+		return CouponCode::find()->where(['orderId' => $this->owner->id])->select('code')->column();
 	}
 
 }
