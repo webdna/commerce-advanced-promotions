@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\controllers\SalesController as CommerceSalesController;
 use craft\web\Controller;
+use webdna\commerce\enhancedpromotions\EnhancedPromotions;
 use yii\web\Response;
 
 /**

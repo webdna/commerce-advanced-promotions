@@ -109,6 +109,10 @@ class EnhancedPromotions extends Plugin
                 $event->rules['commerce/promotions/discounts'] = 'commerce-enhanced-promotions/discounts/index';
                 $event->rules['commerce/promotions/discounts/new'] = 'commerce-enhanced-promotions/discounts/edit';
                 $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce-enhanced-promotions/discounts/edit';
+                
+                $event->rules['commerce/promotions/types/<type:\w+>'] = 'commerce-enhanced-promotions/discounts/index';
+                $event->rules['commerce/promotions/types/<type:\w+>/new'] = 'commerce-enhanced-promotions/discounts/edit-type';
+                $event->rules['commerce/promotions/types/<type:\w+>/<id:\d+>'] = 'commerce-enhanced-promotions/discounts/edit-type';
             }
         );
         

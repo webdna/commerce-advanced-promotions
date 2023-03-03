@@ -14,6 +14,15 @@
 	}) %}
 {% endif %}
 
+{# {% set types = craft.app.plugins.getPlugin('commerce-enhanced-promotions').discounts.getDiscountTypes() %}
+{% if types ?? null %}
+	{% for key, type in types %}
+		{% set sidebarNavItems = sidebarNavItems|merge({
+			(key): { label: type, url: url('commerce/promotions/types/'~key) }
+		}) %}
+	{% endfor %}
+{% endif %} #}
+
 {% set docTitle = sidebarNavItems[selectedSidebarNavItem].label~' - '~title~' - '~'Commerce' %}
 
 {% block sidebar %}

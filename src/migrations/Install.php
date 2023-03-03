@@ -41,13 +41,25 @@ class Install extends Migration
 	public function createTables(): void
 	{
 		$this->createTable('{{%commerce-enhanced-promotions_couponcodes}}', [
-			//'id' => $this->primaryKey(),
 			'code' => $this->string()->notNull(),
 			'discountId' => $this->integer()->notNull(),
 			'orderId' => $this->integer()->notNull(),
-			/*'dateCreated' => $this->dateTime()->notNull(),
+		]);
+		
+		$this->createTable('{{%commerce-enhanced-promotions_discounts}}', [
+			'id' => $this->primaryKey(),
+			'type' => $this->string()->notNull(),
+			'name' => $this->string()->notNull(),
+			'description' => $this->text(),
+			'data' => $this->text(),
+			'dateFrom' => $this->dateTime(),
+			'dateTo' => $this->dateTime(),
+			'enabled' => $this->boolean()->notNull()->defaultValue(true),
+			'ignoreSales' => $this->boolean()->notNull()->defaultValue(false),
+			'sortOrder' => $this->integer(),
+			'dateCreated' => $this->dateTime()->notNull(),
 			'dateUpdated' => $this->dateTime()->notNull(),
-			'uid' => $this->uid(),*/
+			'uid' => $this->uid(),
 		]);
 	}
 	
@@ -57,6 +69,9 @@ class Install extends Migration
 		$this->createIndex(null, '{{%commerce-enhanced-promotions_couponcodes}}', 'discountId', false);
 		$this->createIndex(null, '{{%commerce-enhanced-promotions_couponcodes}}', 'orderId', false);
 		$this->createIndex(null, '{{%commerce-enhanced-promotions_couponcodes}}', ['discountId', 'orderId'], true);
+		
+		$this->createIndex(null, '{{%commerce-enhanced-promotions_discounts}}', 'dateFrom', false);
+		$this->createIndex(null, '{{%commerce-enhanced-promotions_discounts}}', 'dateTo', false);
 	}
 	
 	public function addForeignKeys(): void
@@ -73,10 +88,12 @@ class Install extends Migration
 	public function dropForeignKeys(): void
 	{
 		MigrationHelper::dropAllForeignKeysOnTable('{{%commerce-enhanced-promotions_couponcodes}}', $this);
+		MigrationHelper::dropAllForeignKeysOnTable('{{%commerce-enhanced-promotions_discounts}}', $this);
 	}
 	
 	public function dropTables(): void
 	{
 		$this->dropTableIfExists('{{%commerce-enhanced-promotions_couponcodes}}');
+		$this->dropTableIfExists('{{%commerce-enhanced-promotions_discounts}}');
 	}
 }

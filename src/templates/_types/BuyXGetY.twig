@@ -1,0 +1,87 @@
+{% extends "commerce-enhanced-promotions/types/_edit" %}
+
+{% import "_includes/forms" as forms %}
+{% import "commerce/_includes/forms/commerceForms" as commerceForms %}
+
+{% set matchingItemsClasses = "" %}
+{% if false %}
+	{% set matchingItemsClasses = "error" %}
+{% endif %}
+
+{% set tabs = [
+	{'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
+] %}
+
+{% block extraTabs %}
+	<div id="matching-items" class="hidden">
+	
+		{{ forms.lightswitchField({
+			label: "All purchasables"|t('commerce'),
+			id: 'allPurchasables',
+			name: 'allPurchasables',
+			reverseToggle: '#matching-items-purchasables',
+			on: discount.data.allPurchasables ? true : false,
+			errors: discount.getErrors('allPurchasables')
+	
+		}) }}
+	
+		<div id="matching-items-purchasables" {% if discount.data.allPurchasables %}class="hidden"{% endif %}>
+			{% for purchasableType in purchasableTypes %}
+				{{ forms.elementSelectField({
+					id: 'purchasables-'~purchasableType.elementType|id,
+					label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
+					name: 'purchasables['~purchasableType.elementType~']',
+					elements: purchasables[purchasableType.elementType] ?? null,
+					elementType: purchasableType.elementType,
+					limit: null,
+					instructions: '{type} for which this discount will be applicable to.'|t('commerce', {
+						type: purchasableType.name,
+					}),
+					errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
+				}) }}
+			{% endfor %}
+		</div>
+	
+		{{ forms.lightswitchField({
+			label: "All categories"|t('commerce'),
+			id: 'allCategories',
+			name: 'allCategories',
+			reverseToggle: '#matching-items-categories',
+			on: discount.data.allCategories ? true : false,
+			errors: discount.getErrors('allCategories')
+		}) }}
+	
+		<div id="matching-items-categories" {% if discount.data.allCategories %}class="hidden"{% endif %}>
+			{{ forms.elementSelectField({
+				id: 'categories',
+				label: 'Categories'|t('commerce'),
+				name: 'categories',
+				elements: categories ? categories : null,
+				elementType: categoryElementType,
+				limit: null,
+				instructions: "Categories that the matching purchasables must be related to."|t('commerce'),
+				errors: discount.getErrors('categories'),
+			}) }}
+	
+	
+			<a class="fieldtoggle {% if (discount.data.categoryRelationshipType != 'element') %}expanded{% endif %}"
+			   data-target="categoryRelationshipType-advanced">Advanced</a>
+	
+			<div id="categoryRelationshipType-advanced"
+				 class="{% if (discount.data.categoryRelationshipType == 'element') %}hidden{% endif %}">
+				{{ forms.selectField({
+					id: 'categoryRelationshipType',
+					name: 'categoryRelationshipType',
+					label: 'Categories Relationship Type'|t('commerce'),
+					instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link})."|t('commerce', {
+						link: 'https://craftcms.com/docs/4.x/relations.html#terminology',
+					}),
+					options: categoryRelationshipTypeOptions,
+					value: discount.categoryRelationshipType,
+					errors: discount.getErrors('categoryRelationshipType')
+				}) }}
+			</div>
+		</div>
+	
+	</div>
+{% endblock %}
