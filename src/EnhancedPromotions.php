@@ -163,7 +163,7 @@ class EnhancedPromotions extends Plugin
                 $order = $event->sender;
                 $request = Craft::$app->getRequest();
                     
-                if (!Craft::$app->request->isConsoleRequest && $couponCodes = $request->getParam('couponCodes')) {
+                if ($couponCodes = $request->getParam('couponCodes')) {
                     $removeCodes = [];
                     foreach ($couponCodes as $key => $couponCode) {
                         if ($remove = $request->getParam("couponCodes.$key.remove", false)) {
@@ -203,5 +203,16 @@ class EnhancedPromotions extends Plugin
                 }
             }
         );
+        
+        
+        /*Craft::$app->view->hook("cp.commerce.order.edit.details", function(array &$context) {
+            $view = Craft::$app->getView();
+            $order = $context["order"];
+        
+            return $view->renderTemplate(
+                "commerce-enhanced-promotions/discounts/_meta",
+                ["order" => $order]
+            );
+        });*/
     }
 }

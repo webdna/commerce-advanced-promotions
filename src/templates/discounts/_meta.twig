@@ -1,0 +1,27 @@
+<div id="field-order-field-coupons" class="order-field field">
+	<div class="heading">
+		<label for="order-field-coupons" class=""></label>
+	</div>
+	<div class="input" style="font-size:0.8em;">
+		{% for code in order.couponCodes %}
+			<div data-id="coupon-{{ code|camel }}" class="flex w-full items-center mt-2 text-sm">
+			  <div class="pr-2">
+				<strong class="text-gray-400 text-xs uppercase">{{ code }}</strong>
+			  </div>
+			  <div class="ml-auto">
+				<label>
+				  {{ input('checkbox', 'couponCodes[' ~ code ~ '][remove]', 1) }}
+				  <span class="text-gray-500">Remove</span>
+				</label>
+			  </div>
+			</div>
+		  {% endfor %}
+	</div>
+</div>
+
+{% js %}
+	const $coupons = document.getElementById('field-order-field-coupons');
+	const $coupon = document.querySelector('input[placeholder="Enter coupon code"]').closest('.order-field');
+	
+	$coupon.after($coupons);
+{% endjs %}
