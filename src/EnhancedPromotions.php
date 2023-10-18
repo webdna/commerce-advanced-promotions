@@ -23,9 +23,9 @@ use craft\helpers\Db;
 use craft\services\Fields;
 use craft\web\UrlManager;
 use craft\web\Response;
-use webdna\commerce\enhancedpromotions\adjusters\Discount as DiscountAdjuster;
+use webdna\commerce\enhancedpromotions\adjusters\MultiCouponCodes as MultiCouponCodesAdjuster;
 use webdna\commerce\enhancedpromotions\behaviors\OrderBehavior;
-use webdna\commerce\enhancedpromotions\fields\Discounts as DiscountsAlias;
+use webdna\commerce\enhancedpromotions\fields\Discounts as DiscountsField;
 use webdna\commerce\enhancedpromotions\models\Settings;
 use webdna\commerce\enhancedpromotions\services\DiscountTypes;
 use webdna\commerce\enhancedpromotions\services\Discounts;
@@ -47,7 +47,7 @@ use yii\base\Event;
 class EnhancedPromotions extends Plugin
 {
     public string $schemaVersion = '1.0.0';
-    public bool $hasCpSettings = false;
+    public bool $hasCpSettings = true;
     public bool $hasCpSection = false;
 
     public static function config(): array
@@ -93,7 +93,7 @@ class EnhancedPromotions extends Plugin
             Fields::class, 
             Fields::EVENT_REGISTER_FIELD_TYPES, 
             function (RegisterComponentTypesEvent $event) {
-                $event->types[] = DiscountsAlias::class;
+                $event->types[] = DiscountsField::class;
             }
         );
         
@@ -128,7 +128,9 @@ class EnhancedPromotions extends Plugin
             OrderAdjustments::class, 
             OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS, 
             function(RegisterComponentTypesEvent $e) {
-                $e->types[] = DiscountAdjuster::class;
+                if ($this->getSettings()->multiCouponCodes) {
+                    $e->types[] = MultiCouponCodesAdjuster::class;
+                }
             }
         );
         
@@ -156,43 +158,49 @@ class EnhancedPromotions extends Plugin
             }
         );*/
         
-        Event::on(
-            Order::class, 
-            Order::EVENT_BEFORE_SAVE, 
-            function(ModelEvent $event) {
-                $order = $event->sender;
-                $request = Craft::$app->getRequest();
-                    
-                if ($couponCodes = $request->getParam('couponCodes')) {
-                    $removeCodes = [];
-                    foreach ($couponCodes as $key => $couponCode) {
-                        if ($remove = $request->getParam("couponCodes.$key.remove", false)) {
-                            $removeCodes[] = $key;
+        if ($this->getSettings()->multiCouponCodes) {
+            
+            Event::on(
+                Order::class, 
+                Order::EVENT_BEFORE_SAVE, 
+                function(ModelEvent $event) {
+                    $order = $event->sender;
+                    $request = Craft::$app->getRequest();
+                        
+                    if ($couponCodes = $request->getParam('couponCodes')) {
+                        $removeCodes = [];
+                        foreach ($couponCodes as $key => $couponCode) {
+                            if ($remove = $request->getParam("couponCodes.$key.remove", false)) {
+                                $removeCodes[] = $key;
+                            }
+                        }
+                        
+                        if (count($removeCodes)) {
+                            Db::delete('{{%commerce-enhanced-promotions_couponcodes}}', [
+                                'orderId' => $order->id,
+                                'code' => $removeCodes,
+                            ]);
                         }
                     }
                     
-                    if (count($removeCodes)) {
-                        Db::delete('{{%commerce-enhanced-promotions_couponcodes}}', [
-                            'orderId' => $order->id,
-                            'code' => $removeCodes,
-                        ]);
+                    
+                    if ($order->couponCode) {
+                        if ($discount = $this::getInstance()->discounts->isValidCode($order->couponCode)) {
+                            
+                            Db::upsert('{{%commerce-enhanced-promotions_couponcodes}}',
+                            [
+                                'code' => $order->couponCode,
+                                'discountId' => $discount->id,
+                                'orderId' => $order->id,
+                            ], false);
+                        }
                     }
+                    
+                    $order->couponCode = null;
                 }
-                
-                if ($order->couponCode) {
-                    $discount = Commerce::getInstance()->getDiscounts()->getDiscountByCode($order->couponCode);
-                        
-                    Db::upsert('{{%commerce-enhanced-promotions_couponcodes}}',
-                    [
-                        'code' => $order->couponCode,
-                        'discountId' => $discount->id,
-                        'orderId' => $order->id,
-                    ], false);
-                }
-                
-                $order->couponCode = null;
-            }
-        );
+            );
+            
+        }
         
         Event::on(
             Response::class, 

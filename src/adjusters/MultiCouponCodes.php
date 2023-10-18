@@ -15,7 +15,7 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\helpers\ArrayHelper;
 
-class Discount extends DiscountAdjuster
+class MultiCouponCodes extends DiscountAdjuster
 {
 	/**
 	 * @var Order
