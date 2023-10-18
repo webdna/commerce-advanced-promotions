@@ -1,6 +1,13 @@
 {# @var plugin \webdna\commerce\enhancedpromotions\EnhancedPromotions #}
 {# @var settings \webdna\commerce\enhancedpromotions\models\Settings #}
 
-{% import '_includes/forms.twig' as forms %}
+{% import "_includes/forms" as forms %}
 
-{# ... #}
+{{ forms.booleanMenuField({
+  	label: "Allow Multiple Coupon Codes"|t,
+	id: 'multiCouponCodes',
+	name: 'multiCouponCodes',
+	includeEnvVars: true,
+	value: settings.multiCouponCodes,
+	errors: settings.getErrors('multiCouponCodes'),
+}) }}

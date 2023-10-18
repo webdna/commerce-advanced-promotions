@@ -4,8 +4,12 @@ namespace webdna\commerce\enhancedpromotions\services;
 
 use Craft;
 use craft\helpers\FileHelper;
+use craft\helpers\ArrayHelper;
 use craft\base\Model;
 use yii\base\Component;
+use craft\commerce\Plugin as Commerce;
+use craft\commerce\elements\Order;
+use craft\commerce\models\Coupon;
 
 /**
  * Discounts service
@@ -76,6 +80,24 @@ class Discounts extends Component
     public function reorderDiscountTypes(array $ids): bool
     {
         
+    }
+    
+    
+    public function isValidCode(string $code): mixed
+    {
+        $availableDiscounts = [];
+        $discounts = Commerce::getInstance()->getDiscounts()->getAllActiveDiscounts();
+        
+        foreach ($discounts as $discount) {
+            $coupons = $discount->getCoupons();
+            if (!empty($coupons)) {
+                if (ArrayHelper::firstWhere($coupons, static fn(Coupon $coupon) => (strcasecmp($coupon->code, $code) == 0) && ($coupon->maxUses === null || $coupon->maxUses > $coupon->uses))) {
+                    return $discount;
+                }
+            }
+        }
+        
+        return false;
     }
 
 }

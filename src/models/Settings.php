@@ -10,4 +10,22 @@ use craft\base\Model;
  */
 class Settings extends Model
 {
+    // Public Properties
+    // =========================================================================
+    
+    public bool $multiCouponCodes = true;
+    
+    
+    // Public Methods
+    // =========================================================================
+    
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            
+        ];
+    }
 }
