@@ -48,17 +48,9 @@ class Install extends Migration
 		
 		$this->createTable('{{%commerce-enhanced-promotions_discounts}}', [
 			'id' => $this->primaryKey(),
+			'discountId' => $this->integer()->notNull(),
 			'type' => $this->string()->notNull(),
-			'name' => $this->string()->notNull(),
-			'description' => $this->text(),
 			'data' => $this->text(),
-			'dateFrom' => $this->dateTime(),
-			'dateTo' => $this->dateTime(),
-			'enabled' => $this->boolean()->notNull()->defaultValue(true),
-			'ignoreSales' => $this->boolean()->notNull()->defaultValue(false),
-			'sortOrder' => $this->integer(),
-			'dateCreated' => $this->dateTime()->notNull(),
-			'dateUpdated' => $this->dateTime()->notNull(),
 			'uid' => $this->uid(),
 		]);
 	}
@@ -70,14 +62,16 @@ class Install extends Migration
 		$this->createIndex(null, '{{%commerce-enhanced-promotions_couponcodes}}', 'orderId', false);
 		$this->createIndex(null, '{{%commerce-enhanced-promotions_couponcodes}}', ['discountId', 'orderId'], true);
 		
-		$this->createIndex(null, '{{%commerce-enhanced-promotions_discounts}}', 'dateFrom', false);
-		$this->createIndex(null, '{{%commerce-enhanced-promotions_discounts}}', 'dateTo', false);
+		$this->createIndex(null, '{{%commerce-enhanced-promotions_discounts}}', 'discountId', false);
+		$this->createIndex(null, '{{%commerce-enhanced-promotions_discounts}}', 'type', false);
 	}
 	
 	public function addForeignKeys(): void
 	{
 		$this->addForeignKey(null, '{{%commerce-enhanced-promotions_couponcodes}}', ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');
 		$this->addForeignKey(null, '{{%commerce-enhanced-promotions_couponcodes}}', ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
+		
+		$this->addForeignKey(null, '{{%commerce-enhanced-promotions_discounts}}', ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
 	}
 	
 	public function insertDefaultData(): void

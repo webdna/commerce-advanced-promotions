@@ -1,5 +1,5 @@
 {% extends "commerce-enhanced-promotions/_layouts/promotions" %}
-{% set selectedSidebarNavItem = 'discounts' %}
+{% set selectedSidebarNavItem = type ?? 'discounts' %}
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
@@ -22,7 +22,11 @@
 
 {% block actionButton %}
 	{% if currentUser.can('commerce-createDiscounts') %}
-		<a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+		{% if type ?? null %}
+			<a href="{{ url('commerce/promotions/types/'~type~'/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+		{% else %}
+			<a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+		{% endif %}
 	{% endif %}
 {% endblock %}
 

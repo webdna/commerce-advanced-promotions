@@ -5,12 +5,24 @@ namespace webdna\commerce\enhancedpromotions\controllers;
 use Craft;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\controllers\DiscountsController as CommerceDiscountsController;
+use craft\commerce\base\Purchasable;
+use craft\commerce\base\PurchasableInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\commerce\helpers\DebugPanel;
+use craft\commerce\helpers\Localization;
 use craft\web\Controller;
+use craft\commerce\records\Discount as DiscountRecord;
+use craft\commerce\services\Coupons;
+use craft\commerce\web\assets\coupons\CouponsAsset;
+use craft\elements\Category;
+use craft\elements\Entry;
+use craft\i18n\Locale;
 use webdna\commerce\enhancedpromotions\models\Discount;
+use webdna\commerce\enhancedpromotions\models\types\BuyXGetY;
 use webdna\commerce\enhancedpromotions\EnhancedPromotions;
+use webdna\commerce\enhancedpromotions\behaviors\DiscountBehavior;
 use yii\web\Response;
 
 /**
@@ -23,89 +35,24 @@ class DiscountsController extends CommerceDiscountsController
      */
     public function actionIndex(string $type=null): Response
     {
-        if ($type) {
-            $discounts = EnhancedPromotions::getInstance()->discounts->getAllDiscountsByType($type);
-            return $this->renderTemplate("commerce-enhanced-promotions/types/index", compact('discounts', 'type'));
-        }
+        $discounts = Collect(Commerce::getInstance()->getDiscounts()->getAllDiscounts());
         
-        $discounts = Commerce::getInstance()->getDiscounts()->getAllDiscounts();
-        return $this->renderTemplate('commerce-enhanced-promotions/discounts/index', compact('discounts'));
+        $discounts = $discounts->filter(function($d) use ($type) { return $d->getType() == $type; });
+        
+        return $this->renderTemplate('commerce-enhanced-promotions/discounts/index', compact('discounts', 'type'));
     }
     
     public function actionEditType(int $id = null, Discount $discount = null, string $type=null): Response
     {
-        if ($id === null) {
-            $this->requirePermission('commerce-createDiscounts');
-        } else {
-            $this->requirePermission('commerce-editDiscounts');
+        if (!$discount) {
+            $typeClass = EnhancedPromotions::getInstance()->discounts->getDiscountTypeByClassname($type);
+            $discount = new $typeClass();
         }
         
-        $variables = compact('id', 'discount');
-        $variables['type'] = EnhancedPromotions::getInstance()->discounts->getDiscountTypeByClassname($type);
-        $variables['isNewDiscount'] = false;
+        $discount->setType($typeClass->classname);
         
-        if (!$variables['discount']) {
-            if ($variables['id']) {
-                $variables['discount'] = EnhancedPromotions::getInstance()->discounts->getDiscountTypeById($variables['id']);
+        return parent::actionEdit($id, $discount);
         
-                if (!$variables['discount']) {
-                    throw new HttpException(404);
-                }
-            } else {
-                $variables['discount'] = new Discount();
-                $variables['discount']->type = $variables['type']->classname;
-                $variables['discount']->data = $variables['type']->data;
-                $variables['isNewDiscount'] = true;
-            }
-        }
-        
-        //DebugPanel::prependOrAppendModelTab(model: $variables['discount'], prepend: true);
-        
-        $this->_populateVariables($variables);
-        //$this->getView()->registerAssetBundle(CouponsAsset::class);
-        
-        return $this->renderTemplate('commerce-enhanced-promotions/_types/'.$type, $variables);
     }
     
-    /*public function actionSave(): void
-    {
-        
-    }*/
-    
-    /*public function actionReorder(): Response
-    {
-        
-    }*/
-    
-    /*public function actionDelete(): Response
-    {
-        
-    }*/
-    
-    /*public function actionUpdateStatus(): void
-    {
-        
-    }*/
-    
-    /*public function actionGetDiscountsByPurchasableId(): Response
-    {
-        
-    }*/
-    
-    private function _populateVariables(array &$variables): void
-    {
-        if ($variables['discount']->id) {
-            $variables['title'] = $variables['discount']->name;
-        } else {
-            $variables['title'] = Craft::t('commerce', 'Create a '.$variables['type']->name.' Discount');
-        }
-    
-        // getting user groups map
-        if (Craft::$app->getEdition() == Craft::Pro) {
-            $groups = Craft::$app->getUserGroups()->getAllGroups();
-            $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
-        } else {
-            $variables['groups'] = [];
-        }
-    }
 }

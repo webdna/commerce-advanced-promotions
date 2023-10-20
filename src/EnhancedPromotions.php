@@ -11,10 +11,16 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\events\OrderNoticeEvent;
+use craft\commerce\events\MatchOrderEvent;
+use craft\commerce\events\MatchLineItemEvent;
+use craft\commerce\events\DiscountAdjustmentsEvent;
 use craft\commerce\services\Discounts as CommerceDiscounts;
 use craft\commerce\models\Discount as CommerceDiscount;
+use craft\commerce\adjusters\Discount as DiscountAdjuster;
+use craft\commerce\models\LineItem;
 use craft\commerce\services\OrderAdjustments;
 use craft\events\DefineBehaviorsEvent;
+use craft\events\DefineRulesEvent;
 use craft\events\ModelEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
@@ -24,7 +30,9 @@ use craft\services\Fields;
 use craft\web\UrlManager;
 use craft\web\Response;
 use webdna\commerce\enhancedpromotions\adjusters\MultiCouponCodes as MultiCouponCodesAdjuster;
+use webdna\commerce\enhancedpromotions\adjusters\BuyXGetY as BuyXGetYAdjuster;
 use webdna\commerce\enhancedpromotions\behaviors\OrderBehavior;
+use webdna\commerce\enhancedpromotions\behaviors\DiscountBehavior;
 use webdna\commerce\enhancedpromotions\fields\Discounts as DiscountsField;
 use webdna\commerce\enhancedpromotions\models\Settings;
 use webdna\commerce\enhancedpromotions\services\DiscountTypes;
@@ -68,7 +76,6 @@ class EnhancedPromotions extends Plugin
         // Defer most setup tasks until Craft is fully initialized
         Craft::$app->onInit(function() {
             $this->attachEventHandlers();
-            // ...
         });
     }
 
@@ -125,16 +132,37 @@ class EnhancedPromotions extends Plugin
         );
         
         Event::on(
+            CommerceDiscount::class,
+            CommerceDiscount::EVENT_DEFINE_BEHAVIORS,
+            function(DefineBehaviorsEvent $event) {
+                $event->behaviors['commerce:discount'] = DiscountBehavior::class;
+            }
+        );
+        
+        Event::on(
+            CommerceDiscount::class,
+            CommerceDiscount::EVENT_DEFINE_RULES,
+            function(DefineRulesEvent $event) {
+                
+                if($type = $event->sender->getType()) {
+                    $type = "\\webdna\\commerce\\enhancedpromotions\\models\\types\\$type";
+                    $event->rules = (new $type())->rules();
+                }
+            }
+        );
+        
+        Event::on(
             OrderAdjustments::class, 
             OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS, 
             function(RegisterComponentTypesEvent $e) {
                 if ($this->getSettings()->multiCouponCodes) {
                     $e->types[] = MultiCouponCodesAdjuster::class;
+                    $e->types[] = BuyXGetYAdjuster::class;
                 }
             }
         );
         
-        /*Event::on(
+        Event::on(
             CommerceDiscounts::class,
             CommerceDiscounts::EVENT_AFTER_SAVE_DISCOUNT,
             function(DiscountEvent $event) {
@@ -142,21 +170,55 @@ class EnhancedPromotions extends Plugin
                 $discount = $event->discount;
                 // @var bool $isNew
                 $isNew = $event->isNew;
+                
+                $type = Craft::$app->getRequest()->getBodyParam('type');
+                $data = Craft::$app->getRequest()->getBodyParam('data');
+                
+                $discount->setType($type);
+                $discount->setData($data);
     
-                $this->discounts->afterSaveDiscount($discount);
+                $this->discounts->saveDiscount($discount);
             }
-        );*/
+        );
+        
+        Event::on(
+            DiscountAdjuster::class,
+            DiscountAdjuster::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED,
+            function(DiscountAdjustmentsEvent $event) {
+                // @var Discount $discount
+                $discount = $event->discount;
+                
+                if ($discount->getType()) {
+                    $event->isValid = false;
+                }
+            }
+        );
         
         /*Event::on(
             CommerceDiscounts::class,
-            CommerceDiscounts::EVENT_AFTER_DELETE_DISCOUNT,
-            function(DiscountEvent $event) {
+            CommerceDiscounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM,
+            function(MatchLineItemEvent $event) {
                 // @var Discount $discount
                 $discount = $event->discount;
-        
-                $this->discounts->afterDeleteDiscount($discount);
+                
+                if ($discount->getType()) {
+                    $event->isValid = false;
+                }
+            }
+        );
+        Event::on(
+            CommerceDiscounts::class,
+            CommerceDiscounts::EVENT_DISCOUNT_MATCHES_ORDER,
+            function(MatchOrderEvent $event) {
+                // @var Discount $discount
+                $discount = $event->discount;
+                
+                if ($discount->getType()) {
+                    $event->isValid = false;
+                }
             }
         );*/
+        
         
         if ($this->getSettings()->multiCouponCodes) {
             

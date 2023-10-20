@@ -5,11 +5,15 @@ namespace webdna\commerce\enhancedpromotions\services;
 use Craft;
 use craft\helpers\FileHelper;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 use craft\base\Model;
+use Throwable;
 use yii\base\Component;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Coupon;
+use craft\commerce\models\Discount;
+use webdna\commerce\enhancedpromotions\records\Discount as DiscountRecord;
 
 /**
  * Discounts service
@@ -25,7 +29,7 @@ class Discounts extends Component
         foreach ($files as $key => $type) {
             $info = pathinfo($type);
             $class = $this->getDiscountTypeByClassname($info['filename']);
-            $types[$info['filename']] = $class->name;
+            $types[$info['filename']] = $class->label;
         }
         return $types;
     }
@@ -37,7 +41,7 @@ class Discounts extends Component
         return $class;
     }
     
-    public function getDiscountTypeById(int $id): ?Discount
+    public function getDiscountById(int $id): ?Discount
     {
         
     }
@@ -67,9 +71,25 @@ class Discounts extends Component
         
     }
     
-    public function saveDiscountType(Discount $model, bool $runValidation = true): bool
+    public function saveDiscount(Discount $model): bool
     {
+        if ($record = DiscountRecord::find()->where(['discountId'=>$model->id])->one()) {
+        } else {
+            $record = new DiscountRecord();
+        }
         
+        try {
+            $record->discountId = $model->id;
+            $record->type = $model->getType();
+            $record->data = $model->getData();
+            
+            $record->save();
+            
+            return true;
+            
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
     
     public function deleteDiscountTypeById(int $id): bool
