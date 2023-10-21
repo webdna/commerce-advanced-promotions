@@ -31,6 +31,7 @@ use craft\web\UrlManager;
 use craft\web\Response;
 use webdna\commerce\enhancedpromotions\adjusters\MultiCouponCodes as MultiCouponCodesAdjuster;
 use webdna\commerce\enhancedpromotions\adjusters\BuyXGetY as BuyXGetYAdjuster;
+use webdna\commerce\enhancedpromotions\adjusters\GiftWithPurchase as GiftWithPurchaseAdjuster;
 use webdna\commerce\enhancedpromotions\behaviors\OrderBehavior;
 use webdna\commerce\enhancedpromotions\behaviors\DiscountBehavior;
 use webdna\commerce\enhancedpromotions\fields\Discounts as DiscountsField;
@@ -158,6 +159,7 @@ class EnhancedPromotions extends Plugin
                 if ($this->getSettings()->multiCouponCodes) {
                     $e->types[] = MultiCouponCodesAdjuster::class;
                     $e->types[] = BuyXGetYAdjuster::class;
+                    $e->types[] = GiftWithPurchaseAdjuster::class;
                 }
             }
         );

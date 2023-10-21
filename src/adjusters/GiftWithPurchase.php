@@ -15,7 +15,7 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\helpers\ArrayHelper;
 
-class BuyXGetY extends DiscountAdjuster
+class GiftWithPurchase extends DiscountAdjuster
 {
     /**
      * @var Order
@@ -52,6 +52,13 @@ class BuyXGetY extends DiscountAdjuster
         $discounts = $discounts->filter(function($d) { return $d->getType() == (new \ReflectionClass($this))->getShortName(); });
 
         foreach ($discounts as $discount) {
+            if (count($discount->data['purchasables']['craft\\commerce\\elements\\Variant'])) {
+                $lineItem = Commerce::getInstance()->getLineItems()->resolveLineItem($this->_order, $discount->data['purchasables']['craft\\commerce\\elements\\Variant'][0], ['Discount'=>'Gift with Purchase']);
+                if ($lineItem) {
+                    $this->_order->removeLineItem($lineItem);
+                }
+            }
+            
             if (Commerce::getInstance()->getDiscounts()->matchOrder($order, $discount)) {
                 $availableDiscounts[] = $discount;
             }
@@ -120,32 +127,19 @@ class BuyXGetY extends DiscountAdjuster
                 $totalQty += $item->qty;
             }
         }
-        
-        $xToDiscount = floor($totalQty / $discount->purchaseQty) * $discount->data['qty'];
-        
     
-        foreach (collect($this->_order->getLineItems())->sortBy('salePrice') as $item) {
+        foreach ($this->_order->getLineItems() as $item) {
             $lineItemHashId = spl_object_hash($item);
             if ($matchingLineIds && in_array($lineItemHashId, $matchingLineIds, false)) {
+                $lineItem = Commerce::getInstance()->getLineItems()->resolveLineItem($this->_order, $discount->data['purchasables']['craft\\commerce\\elements\\Variant'][0], ['Discount'=>'Gift with Purchase']);
+                $lineItem->note = 'Gift with Purchase';
+                
+                $this->_order->addLineItem($lineItem);
+                
                 $adjustment = $this->_createOrderAdjustment($discount);
-                $adjustment->setLineItem($item);
-                $adjustment->amount = 0;
-                
-                
-                
-                if ($matchingLinePrices->contains('id', $item->id)) {
-                    $discountQty = $xToDiscount;
-                    if ($item->qty < $xToDiscount) {
-                        $discountQty = $item->qty;
-                    }
-                    $xToDiscount -= $discountQty;
-                    $adjustment->amount = -($item->salePrice * $discountQty);
-                }
-                
-    
-                if ($adjustment->amount != 0) {
-                    $adjustments[] = $adjustment;
-                }
+                $adjustment->setLineItem($lineItem);
+                $adjustment->amount = -($lineItem->salePrice);
+                $adjustments[] = $adjustment;
             }
         }
     
