@@ -48,7 +48,7 @@ class BuyXGetY extends DiscountAdjuster
         
         $adjustments = [];
         $availableDiscounts = [];
-        $discounts = Collect(Commerce::getInstance()->getDiscounts()->getAllActiveDiscounts());
+        $discounts = Collect(Commerce::getInstance()->getDiscounts()->getAllActiveDiscounts($order));
         $discounts = $discounts->filter(function($d) { return $d->getType() == (new \ReflectionClass($this))->getShortName(); });
 
         foreach ($discounts as $discount) {

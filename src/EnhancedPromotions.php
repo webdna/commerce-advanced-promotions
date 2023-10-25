@@ -55,7 +55,7 @@ use yii\base\Event;
  */
 class EnhancedPromotions extends Plugin
 {
-    public string $schemaVersion = '1.0.1';
+    public string $schemaVersion = '1.0.2';
     public bool $hasCpSettings = true;
     public bool $hasCpSection = false;
 
@@ -220,6 +220,20 @@ class EnhancedPromotions extends Plugin
                 }
             }
         );*/
+        
+        Event::on(
+            Order::class, 
+            Order::EVENT_AFTER_SAVE, 
+            function(ModelEvent $event) {
+                $order = $event->sender;
+                
+                //remove lineitem
+                
+                //check discounts for GiftWithPurchase
+                
+                //add lineitem
+            }
+        );
         
         
         if ($this->getSettings()->multiCouponCodes) {

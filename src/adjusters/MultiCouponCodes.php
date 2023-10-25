@@ -48,7 +48,7 @@ class MultiCouponCodes extends DiscountAdjuster
 		
 		$adjustments = [];
 		$availableDiscounts = [];
-		$discounts = Commerce::getInstance()->getDiscounts()->getAllActiveDiscounts();
+		$discounts = Commerce::getInstance()->getDiscounts()->getAllActiveDiscounts($order);
 
 		foreach ($discounts as $discount) {
 			$coupons = $discount->getCoupons();

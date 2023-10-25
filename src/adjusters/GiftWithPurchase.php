@@ -48,12 +48,12 @@ class GiftWithPurchase extends DiscountAdjuster
         
         $adjustments = [];
         $availableDiscounts = [];
-        $discounts = Collect(Commerce::getInstance()->getDiscounts()->getAllActiveDiscounts());
+        $discounts = Collect(Commerce::getInstance()->getDiscounts()->getAllActiveDiscounts($order));
         $discounts = $discounts->filter(function($d) { return $d->getType() == (new \ReflectionClass($this))->getShortName(); });
 
         foreach ($discounts as $discount) {
             if (count($discount->data['purchasables']['craft\\commerce\\elements\\Variant'])) {
-                $lineItem = Commerce::getInstance()->getLineItems()->resolveLineItem($this->_order, $discount->data['purchasables']['craft\\commerce\\elements\\Variant'][0], ['Discount'=>'Gift with Purchase']);
+                $lineItem = Commerce::getInstance()->getLineItems()->resolveLineItem($this->_order, $discount->data['purchasables']['craft\\commerce\\elements\\Variant'][0], ['Discount'=>'GiftWithPurchase']);
                 if ($lineItem) {
                     $this->_order->removeLineItem($lineItem);
                 }
@@ -109,39 +109,16 @@ class GiftWithPurchase extends DiscountAdjuster
     private function _getAdjustments(DiscountModel $discount): array|false
     {
         $adjustments = [];
-    
-        $matchingLineIds = [];
-        $matchingLinePrices = collect([]);
-        $totalQty = 0;
+
+        $lineItem = Commerce::getInstance()->getLineItems()->resolveLineItem($this->_order, $discount->data['purchasables']['craft\\commerce\\elements\\Variant'][0], ['Discount'=>'GiftWithPurchase']);
         
-        foreach ($this->_order->getLineItems() as $item) {
-            $lineItemHashId = spl_object_hash($item);
-            // Order is already a match to this discount, or we wouldn't get here.
-            if (Commerce::getInstance()->getDiscounts()->matchLineItem($item, $discount, false)) {
-                $matchingLineIds[] = $lineItemHashId;
-                $matchingLinePrices[] = [
-                    'id' => $item->id, 
-                    'price' => $item->salePrice,
-                    'qty' => $item->qty,
-                ];
-                $totalQty += $item->qty;
-            }
-        }
-    
-        foreach ($this->_order->getLineItems() as $item) {
-            $lineItemHashId = spl_object_hash($item);
-            if ($matchingLineIds && in_array($lineItemHashId, $matchingLineIds, false)) {
-                $lineItem = Commerce::getInstance()->getLineItems()->resolveLineItem($this->_order, $discount->data['purchasables']['craft\\commerce\\elements\\Variant'][0], ['Discount'=>'Gift with Purchase']);
-                $lineItem->note = 'Gift with Purchase';
-                
-                $this->_order->addLineItem($lineItem);
-                
-                $adjustment = $this->_createOrderAdjustment($discount);
-                $adjustment->setLineItem($lineItem);
-                $adjustment->amount = -($lineItem->salePrice);
-                $adjustments[] = $adjustment;
-            }
-        }
+        $this->_order->addLineItem($lineItem);
+        
+        $adjustment = $this->_createOrderAdjustment($discount);
+        $adjustment->setLineItem($lineItem);
+        $adjustment->amount = -($lineItem->salePrice);
+        $adjustments[] = $adjustment;
+        
     
         // only display adjustment if an amount was calculated
         if (!count($adjustments)) {

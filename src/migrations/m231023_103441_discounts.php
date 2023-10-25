@@ -25,7 +25,7 @@ class m231023_103441_discounts extends Migration
         $this->createTable('{{%commerce-enhanced-promotions_discounts}}', [
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
-            'type' => $this->string()->notNull(),
+            'type' => $this->string(),
             'data' => $this->text(),
             'uid' => $this->uid(),
         ]);
