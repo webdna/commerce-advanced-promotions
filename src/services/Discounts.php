@@ -157,7 +157,7 @@ class Discounts extends Component
         $purchasablesKey = !empty($purchasableIds) ? md5(serialize($purchasableIds)) : '';
         $cacheKeys = [];
         
-        $couponCodes = $order ? EnhancedPromotions::getInstance()->getSettings()->multiCouponCodes ? $order->couponCodes : [$order->couponCode] : [];
+        $couponCodes = $order ? (EnhancedPromotions::getInstance()->getSettings()->multiCouponCodes ? $order->couponCodes : [$order->couponCode]) : [];
 
         $couponKeys = ($order && count($couponCodes)) ? $couponCodes : ['*'];
         foreach ($couponKeys as $couponKey) {
@@ -259,7 +259,7 @@ class Discounts extends Component
                     ['not exists', $couponSubQuery],
                 ]
             );
-        } elseif ($order && !count($$couponCodes)) {
+        } elseif ($order && !count($couponCodes)) {
             $discountQuery->andWhere(
             // only discounts that do not have a coupon code requirement
                 ['not exists', $couponSubQuery]
