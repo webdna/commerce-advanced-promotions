@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\elements\Order;
 use craft\commerce\adjusters\Discount as DiscountAdjuster;
+use webdna\commerce\enhancedpromotions\EnhancedPromotions;
 use webdna\commerce\enhancedpromotions\records\CouponCode;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Discount as DiscountModel;
@@ -48,7 +49,7 @@ class BuyXGetY extends DiscountAdjuster
         
         $adjustments = [];
         $availableDiscounts = [];
-        $discounts = Collect(Commerce::getInstance()->getDiscounts()->getAllActiveDiscounts($order));
+        $discounts = Collect(EnhancedPromotions::getInstance()->discounts->getAllActiveDiscounts($order));
         $discounts = $discounts->filter(function($d) { return $d->getType() == (new \ReflectionClass($this))->getShortName(); });
 
         foreach ($discounts as $discount) {

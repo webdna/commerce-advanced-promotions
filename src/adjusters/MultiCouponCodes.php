@@ -7,6 +7,7 @@ use craft\commerce\Plugin as Commerce;
 use craft\commerce\elements\Order;
 use craft\commerce\adjusters\Discount as DiscountAdjuster;
 use webdna\commerce\enhancedpromotions\records\CouponCode;
+use webdna\commerce\enhancedpromotions\EnhancedPromotions;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\Coupon;
@@ -46,13 +47,15 @@ class MultiCouponCodes extends DiscountAdjuster
 	{
 		$this->_order = $order;
 		
+		
+		
 		$adjustments = [];
 		$availableDiscounts = [];
-		$discounts = Commerce::getInstance()->getDiscounts()->getAllActiveDiscounts($order);
+		$discounts = EnhancedPromotions::getInstance()->discounts->getAllActiveDiscounts($order);
 
 		foreach ($discounts as $discount) {
 			$coupons = $discount->getCoupons();
-			if (!empty($coupons)) {
+			if (count($coupons)) {
 				foreach ($order->couponCodes as $code) {
 					if (ArrayHelper::firstWhere($coupons, static fn(Coupon $coupon) => (strcasecmp($coupon->code, $code) == 0) && ($coupon->maxUses === null || $coupon->maxUses > $coupon->uses))) {
 						$availableDiscounts[$discount->id] = $discount;

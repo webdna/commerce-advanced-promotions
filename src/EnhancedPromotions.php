@@ -158,9 +158,9 @@ class EnhancedPromotions extends Plugin
             function(RegisterComponentTypesEvent $e) {
                 if ($this->getSettings()->multiCouponCodes) {
                     $e->types[] = MultiCouponCodesAdjuster::class;
-                    $e->types[] = BuyXGetYAdjuster::class;
-                    $e->types[] = GiftWithPurchaseAdjuster::class;
                 }
+                $e->types[] = BuyXGetYAdjuster::class;
+                $e->types[] = GiftWithPurchaseAdjuster::class;
             }
         );
         
