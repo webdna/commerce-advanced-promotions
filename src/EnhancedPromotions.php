@@ -245,7 +245,7 @@ class EnhancedPromotions extends Plugin
                     $order = $event->sender;
                     $request = Craft::$app->getRequest();
                         
-                    if ($couponCodes = $request->getParam('couponCodes')) {
+                    if (!Craft::$app->request->isConsoleRequest && $couponCodes = $request->getParam('couponCodes')) {
                         $removeCodes = [];
                         foreach ($couponCodes as $key => $couponCode) {
                             if ($remove = $request->getParam("couponCodes.$key.remove", false)) {
