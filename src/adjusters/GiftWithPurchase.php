@@ -18,6 +18,8 @@ use craft\helpers\ArrayHelper;
 
 class GiftWithPurchase extends DiscountAdjuster
 {
+    public const ADJUSTMENT_TYPE = 'gift';
+    
     /**
      * @var Order
      */
