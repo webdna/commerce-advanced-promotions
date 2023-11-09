@@ -112,6 +112,8 @@ class GiftWithPurchase extends DiscountAdjuster
         $adjustments = [];
 
         $lineItem = Commerce::getInstance()->getLineItems()->resolveLineItem($this->_order, $discount->data['purchasables']['craft\\commerce\\elements\\Variant'][0], ['Discount'=>'GiftWithPurchase']);
+        $lineItem->price = 0;
+        $lineItem->salePrice = 0;
         
         $this->_order->addLineItem($lineItem);
         
@@ -119,12 +121,6 @@ class GiftWithPurchase extends DiscountAdjuster
         $adjustment->setLineItem($lineItem);
         $adjustment->amount = -($lineItem->salePrice);
         $adjustments[] = $adjustment;
-        
-    
-        // only display adjustment if an amount was calculated
-        if (!count($adjustments)) {
-            return false;
-        }
     
     
         return $adjustments;
